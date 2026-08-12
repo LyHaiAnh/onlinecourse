@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ course.name }}</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body>
+    <nav className="navbar navbar-light bg-light mb-4">
+        <div className="container">
+            <a className="navbar-brand" href="#">Online Course</a>
+            {% if user.is_authenticated %}
+            <span className="navbar-text">Logged in as: {{ user.username }}</span>
+            {% endif %}
+        </div>
+    </nav>
+
+    <div className="container">
+        <h2>{{ course.name }}</h2>
+        <p>{{ course.description }}</p>
+
+        <form action="{% url 'onlinecourse:submit' course.id %}" method="post">
+            {% csrf_token %}
+            {% for lesson in course.lesson_set.all %}
+                <div className="card mb-3">
+                    <div className="card-header">
+                        <h4>Lesson {{ lesson.order }}: {{ lesson.title }}</h4>
+                    </div>
+                    <div className="card-body">
+                        <p>{{ lesson.content }}</p>
+                        {% for question in lesson.question_set.all %}
+                            <div className="card mt-3">
+                                <div className="card-header">
+                                    <h5>{{ question.question_text }} ({{ question.grade }} pts)</h5>
+                                </div>
+                                <div className="card-body">
+                                    {% for choice in question.choice_set.all %}
+                                        <div className="form-check">
+                                            <input className="form-check-input" type="checkbox" name="choice_{{ choice.id }}" id="choice_{{ choice.id }}" value="{{ choice.id }}">
+                                            <label className="form-check-label" htmlFor="choice_{{ choice.id }}">
+                                                {{ choice.choice_text }}
+                                            </label>
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            {% endfor %}
+            <button type="submit" className="btn btn-primary btn-block mb-4">Submit Exam</button>
+        </form>
+    </div>
+</body>
+</html>
